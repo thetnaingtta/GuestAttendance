@@ -19,7 +19,7 @@ class App extends Component {
           <Route path="/GuestToTag" component={GuestToTag} />
           <Route path="/CheckedInGuests" component={CheckedInGuests} />
           <Redirect from="/" exact to="/GuestCheckIn" />
-          <Redirect to="/not-found" />
+          <Redirect to="/GuestCheckIn" />
         </Switch>
         </main>
       </React.Fragment>
