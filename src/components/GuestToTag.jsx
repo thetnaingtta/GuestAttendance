@@ -14,7 +14,7 @@ async function fetchGuestsToTag() {
 
 class GuestToTag extends Component {
   state = {
-    guests: [],
+    guests: null,
   };
 
   async componentDidMount() {
@@ -67,21 +67,23 @@ class GuestToTag extends Component {
   };
 
   render() {
-    const { length: count } = this.state.guests;
+    const { guests } = this.state;
 
     return (
       <React.Fragment>
         <div style={{ display: "flex", alignItems: "center" }}>
-          {count === 0 ? (
+          {guests === null ? (
+            <p style={{ margin: "0" }}>Loading guests...</p>
+          ) : guests.length === 0 ? (
             <p style={{ margin: "0" }}>No checked in guests to tag.</p>
           ) : (
             <p style={{ margin: "0" }}>
-              Showing {count} checked in guests to tag.
+              Showing {guests.length} checked in guests to tag.
             </p>
           )}
           <RefreshButton OnClick={this.handleRefresh} />
         </div>
-        <GuestsTable guests={this.state.guests} handleTag={this.handleTag} />
+        {guests !== null && <GuestsTable guests={guests} handleTag={this.handleTag} />}
       </React.Fragment>
     );
   }
