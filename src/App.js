@@ -15,10 +15,10 @@ class App extends Component {
         <main className="container" style={{ marginTop: "25px" }}>
         
         <Switch>
-          <Route path="/GuestCheckin" component={GuestCheckIn} />
+          <Route path="/GuestCheckIn" component={GuestCheckIn} />
           <Route path="/GuestToTag" component={GuestToTag} />
           <Route path="/CheckedInGuests" component={CheckedInGuests} />
-          <Redirect from="/" exact to="/GuestCheckin" />
+          <Redirect from="/" exact to="/GuestCheckIn" />
           <Redirect to="/not-found" />
         </Switch>
         </main>
