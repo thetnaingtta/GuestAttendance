@@ -3,11 +3,12 @@ import guestAPI from "../services/guestAPI.mjs";
 import DateClass from "./utils/FormatDateTime";
 
 import GuestsTable from "./GuestTables.jsx";
+import RefreshButton from "./buttons/RefreshButton";
 
 async function fetchGuestsToTag() {
-  const guests = (await guestAPI.getGuests()).filter(
-    (guest) => guest.checkin !== "" && guest.tag === ""
-  ).sort((a, b) => new Date(b.checkin) - new Date(a.checkin));
+  const guests = (await guestAPI.getGuests())
+    .filter((guest) => guest.checkin !== "" && guest.tag === "")
+    .sort((a, b) => new Date(b.checkin) - new Date(a.checkin));
   return guests;
 }
 
@@ -34,6 +35,11 @@ class GuestToTag extends Component {
     }
   }
 
+  handleRefresh = async () => {
+    const guests = await fetchGuestsToTag();
+    this.setState({ guests });
+  };
+
   componentWillUnmount() {
     // clear interval when component unmounts
     clearInterval(this.interval);
@@ -55,9 +61,7 @@ class GuestToTag extends Component {
     if (updatedguest === "Error updating data") {
       window.alert(`Checking in failed for ${guest.name}, please try again!`);
     } else {
-      const updatedguests = [...this.state.guests];
-      const index = updatedguests.indexOf(guest);
-      updatedguests[index] = updatedguest;
+      const updatedguests = [...this.state.guests].filter((g) => g.no !== guest.no);
       this.setState({ guests: updatedguests });
     }
   };
@@ -67,11 +71,16 @@ class GuestToTag extends Component {
 
     return (
       <React.Fragment>
-        {count === 0 ? (
-          <p>No checked in guests to tag.</p>
-        ) : (
-          <p>Showing {count} checked in guests to tag.</p>
-        )}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {count === 0 ? (
+            <p style={{ margin: "0" }}>No checked in guests to tag.</p>
+          ) : (
+            <p style={{ margin: "0" }}>
+              Showing {count} checked in guests to tag.
+            </p>
+          )}
+          <RefreshButton OnClick={this.handleRefresh} />
+        </div>
         <GuestsTable guests={this.state.guests} handleTag={this.handleTag} />
       </React.Fragment>
     );

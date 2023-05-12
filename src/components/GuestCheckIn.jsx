@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import guestAPI from '../services/guestAPI.mjs';
+import guestAPI from "../services/guestAPI.mjs";
 import DateClass from "./utils/FormatDateTime";
 
 import GuestsTable from "./GuestTables.jsx";
@@ -9,12 +9,7 @@ class GuestCheckIn extends Component {
   state = {
     guests: [],
   };
-
-  // async componentDidMount() {
-  //   const guests = await getGuests();
-  //   this.setState({ guests });
-  // }
-
+  
   handleSearch = async (searchname) => {
     if (!searchname) {
       this.setState({ guests: [] });
@@ -43,7 +38,7 @@ class GuestCheckIn extends Component {
     } else {
       const updatedguests = [...this.state.guests];
       const index = updatedguests.indexOf(guest);
-      updatedguests[index] = updatedguest;    
+      updatedguests[index] = updatedguest;
       this.setState({ guests: updatedguests });
     }
     console.log(guest);
@@ -67,26 +62,17 @@ class GuestCheckIn extends Component {
     } else {
       const updatedguests = [...this.state.guests];
       const index = updatedguests.indexOf(guest);
-      updatedguests[index] = updatedguest;      
+      updatedguests[index] = updatedguest;
       this.setState({ guests: updatedguests });
     }
   };
-
-  // columns = [
-  //   { path: "no", label: "No" },
-  //   { path: "name", label: "Name" },
-  //   { path: "email", label: "Email" },
-  //   { path: "company", label: "Company" },
-  //   { path: "country", label: "Country" },
-  //   { path: "checkedintime", label: "Check In" },
-  // ];
 
   render() {
     const { length: count } = this.state.guests;
 
     return (
       <React.Fragment>
-        <SearchForm onSearch={this.handleSearch}  label="Name" />
+        <SearchForm onSearch={this.handleSearch} label="Name" />
         {count === 0 ? (
           <p>No matching guests found.</p>
         ) : (

@@ -1,11 +1,10 @@
-import CartIcon  from "../Icons/CartIcon";
-import classes from "./EventButton.module.css";
+import classes from "./Button.module.css";
 
 const EventButton = props => {
     const { guest, OnClick, label } = props;
     return <button className={classes.button} onClick={() => OnClick(guest)} >
         {/* <span className={classes.CartIcon}>
-            <CartIcon />
+            <SyncIcon />
         </span> */}
         <span>{label}</span>
     </button>
