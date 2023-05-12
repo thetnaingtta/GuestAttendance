@@ -15,11 +15,11 @@ class App extends Component {
         <main className="container" style={{ marginTop: "25px" }}>
         
         <Switch>
-          <Route path="/GuestCheckIn" component={GuestCheckIn} />
+          <Route path="/GuestAttendance" component={GuestCheckIn} />
           <Route path="/GuestToTag" component={GuestToTag} />
           <Route path="/CheckedInGuests" component={CheckedInGuests} />
-          <Redirect from="/" exact to="/GuestCheckIn" />
-          <Redirect to="/GuestCheckIn" />
+          <Redirect from="/" exact to="/GuestAttendance" />
+          <Redirect to="/GuestAttendance" />
         </Switch>
         </main>
       </React.Fragment>
