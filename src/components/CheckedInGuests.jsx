@@ -10,7 +10,7 @@ import RefreshButton from "./buttons/RefreshButton";
 async function fetchAllCheckInGuest() {
   const guests = (await guestAPI.getGuests())
     .filter((guest) => guest.checkin !== "")
-    .sort((a, b) => new Date(a.checkin) - new Date(b.checkin));
+    .sort((a, b) => new Date(b.checkin) - new Date(a.checkin));
   return guests;
 }
 
