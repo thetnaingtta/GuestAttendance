@@ -13,9 +13,12 @@ async function fetchGuestsToTag() {
 }
 
 class GuestToTag extends Component {
-  state = {
-    guests: null,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      guests: [], // Set initial value to an empty array
+    };
+  }
 
   async componentDidMount() {
     // check if current date is within the desired date range
@@ -23,17 +26,41 @@ class GuestToTag extends Component {
     const startDate = new Date(2023, 4, 19); // May 19, 2023
     const endDate = new Date(2023, 4, 21); // May 21, 2023
     const isDateInRange = currentDate >= startDate && currentDate <= endDate;
-
+  
+    let guests = [];
+  
     if (isDateInRange) {
+      this.setState({ guests: [] });
+      guests = await fetchGuestsToTag();
+      this.setState({ guests });
       this.interval = setInterval(async () => {
-        const guests = await fetchGuestsToTag();
+        guests = await fetchGuestsToTag();
         this.setState({ guests });
       }, 10000);
     } else {
-      const guests = await fetchGuestsToTag();
+      guests = await fetchGuestsToTag();
       this.setState({ guests });
     }
   }
+
+  // async componentDidMount() {
+  //   // check if current date is within the desired date range
+  //   const currentDate = new Date();
+  //   const startDate = new Date(2023, 4, 19); // May 19, 2023
+  //   const endDate = new Date(2023, 4, 21); // May 21, 2023
+  //   const isDateInRange = currentDate >= startDate && currentDate <= endDate;
+
+  //   if (isDateInRange) {
+  //     this.interval = setInterval(async () => {
+  //       const guests = await fetchGuestsToTag();
+  //       this.setState({ guests });
+  //     }, 10000);
+  //   } else {
+  //     const guests = await fetchGuestsToTag();
+  //     this.setState({ guests });
+  //   }
+ 
+  // }
 
   handleRefresh = async () => {
     const guests = await fetchGuestsToTag();

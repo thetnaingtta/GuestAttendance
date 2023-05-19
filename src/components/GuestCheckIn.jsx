@@ -22,6 +22,18 @@ class GuestCheckIn extends Component {
     this.setState({ guests: searchedguests });
   };
 
+  handleSearchCompany = async (searchname) => {
+    if (!searchname) {
+      this.setState({ guests: [] });
+      return;
+    }
+
+    const searchedguests = (await guestAPI.getGuests()).filter((guest) =>
+      guest.company.toLowerCase().includes(searchname.toLowerCase())
+    );
+    this.setState({ guests: searchedguests });
+  };
+
   handleCheckIn = async (guest) => {
     const shouldCheckIn = window.confirm(
       `Are you sure to check in for ${guest.name} now?`
@@ -72,7 +84,10 @@ class GuestCheckIn extends Component {
 
     return (
       <React.Fragment>
-        <SearchForm onSearch={this.handleSearch} label="Name" />
+        <div style={{ display: "flex" }}>
+          <SearchForm onSearch={this.handleSearch} label="Name" />
+          <SearchForm onSearch={this.handleSearchCompany} label="Company" />
+        </div>
         {count === 0 ? (
           <p>No matching guests found.</p>
         ) : (

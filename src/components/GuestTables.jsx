@@ -4,6 +4,24 @@ import DateClass from "./utils/FormatDateTime";
 
 const GuestsTable = (props) => {
   const { guests, handleCheckIn, handleTag } = props;
+
+  const replaceSpecialCharacters = (name) => {
+    // Define the characters to replace and their Unicode equivalents
+    const characterMap = [
+      { from: /�/g, to: "\uFFFD" }, // Replace � with Unicode replacement character
+      { from: /\?/g, to: "\u203D" }, // Replace ? with Unicode interrobang
+      // Add more replacement rules as needed
+    ];
+
+    // Perform the character replacements
+    let processedName = name;
+    characterMap.forEach(({ from, to }) => {
+      processedName = processedName.replace(from, to);
+    });
+
+    return processedName;
+  };
+
   return (
     <Fragment>
       <table className="table">
@@ -22,7 +40,7 @@ const GuestsTable = (props) => {
           {guests.map((guest) => (
             <tr key={guest.no}>
               {/* <td>{guest.no}</td> */}
-              <td>{guest.name}</td>
+              <td>{replaceSpecialCharacters(guest.name)}</td>
               {/* <td>{guest.email}</td> */}
               <td>{guest.company}</td>
               <td>{guest.country}</td>
