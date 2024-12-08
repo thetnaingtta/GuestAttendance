@@ -1,75 +1,77 @@
 import { Fragment } from "react";
+import PropTypes from "prop-types";
 import EventButton from "./buttons/EventButton";
 import DateClass from "./utils/FormatDateTime";
+import { replaceSpecialCharacters } from "./utils/stringUtility";
 
-const GuestsTable = (props) => {
-  const { guests, handleCheckIn, handleTag } = props;
+const GuestsTable = ({ guests, handleCheckIn, handleTag }) => {
+  const renderCheckInButtonOrDate = (guest) =>
+    guest.checkin ? (
+      DateClass.formatDateTime(guest.checkin)
+    ) : (
+      <EventButton guest={guest} OnClick={handleCheckIn} label="Check In" />
+    );
 
-  const replaceSpecialCharacters = (name) => {
-    // Define the characters to replace and their Unicode equivalents
-    const characterMap = [
-      { from: /�/g, to: "\uFFFD" }, // Replace � with Unicode replacement character
-      { from: /\?/g, to: "\u203D" }, // Replace ? with Unicode interrobang
-      // Add more replacement rules as needed
-    ];
+  const renderTagButtonOrText = (guest) =>
+    guest.tag ? (
+      guest.tag
+    ) : guest.checkin ? (
+      <EventButton guest={guest} OnClick={handleTag} label="TAG" />
+    ) : (
+      ""
+    );
 
-    // Perform the character replacements
-    let processedName = name;
-    characterMap.forEach(({ from, to }) => {
-      processedName = processedName.replace(from, to);
-    });
-
-    return processedName;
-  };
+  const GuestRow = ({ guest }) => (
+    <tr>
+      <td>{replaceSpecialCharacters(guest.name)}</td>
+      <td>{guest.company}</td>
+      <td>{guest.country}</td>
+      <td>{renderCheckInButtonOrDate(guest)}</td>
+      <td>{renderTagButtonOrText(guest)}</td>
+    </tr>
+  );
 
   return (
     <Fragment>
       <table className="table">
         <thead>
           <tr>
-            {/* <th>No</th> */}
-            <th>Name</th>
-            {/* <th>Email</th> */}
-            <th>Company</th>
-            <th>Country</th>
-            <th>Checked In</th>
-            <th>Tag</th>
+            <th scope="col">Name</th>
+            <th scope="col">Company</th>
+            <th scope="col">Country</th>
+            <th scope="col">Checked In</th>
+            <th scope="col">Tag</th>
           </tr>
         </thead>
         <tbody>
-          {guests.map((guest) => (
-            <tr key={guest.no}>
-              {/* <td>{guest.no}</td> */}
-              <td>{replaceSpecialCharacters(guest.name)}</td>
-              {/* <td>{guest.email}</td> */}
-              <td>{guest.company}</td>
-              <td>{guest.country}</td>
-              <td>
-                {guest.checkin ? (
-                  DateClass.formatDateTime(guest.checkin)
-                ) : (
-                  <EventButton
-                    guest={guest}
-                    OnClick={handleCheckIn}
-                    label="Check In"
-                  />
-                )}
-              </td>
-              <td>
-                {guest.tag ? (
-                  guest.tag
-                ) : guest.checkin ? (
-                  <EventButton guest={guest} OnClick={handleTag} label="TAG" />
-                ) : (
-                  ""
-                )}
+          {guests.length > 0 ? (
+            guests.map((guest) => <GuestRow key={guest.no} guest={guest} />)
+          ) : (
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center" }}>
+                No guests available.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </Fragment>
   );
+};
+
+GuestsTable.propTypes = {
+  guests: PropTypes.arrayOf(
+    PropTypes.shape({
+      no: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      company: PropTypes.string,
+      country: PropTypes.string,
+      checkin: PropTypes.string,
+      tag: PropTypes.string,
+    })
+  ).isRequired,
+  handleCheckIn: PropTypes.func.isRequired,
+  handleTag: PropTypes.func.isRequired,
 };
 
 export default GuestsTable;

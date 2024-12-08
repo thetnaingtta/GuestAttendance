@@ -1,100 +1,105 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import guestAPI from "../services/guestAPI.mjs";
 import DateClass from "./utils/FormatDateTime";
-
 import GuestsTable from "./GuestTables.jsx";
 import SearchForm from "./SearchForm/SearchForm.jsx";
+import "../styles/GuestAttendance.css";
 
 class GuestCheckIn extends Component {
   state = {
     guests: [],
+    isLoading: false,
   };
-  
-  handleSearch = async (searchname) => {
-    if (!searchname) {
-      this.setState({ guests: [] });
+
+  confirmAction = (message) => window.confirm(message);
+
+  handleSearch = async (searchTerm, field) => {
+    this.setState({ isLoading: true });
+
+    if (!searchTerm) {
+      this.setState({ guests: [], isLoading: false });
       return;
     }
 
-    const searchedguests = (await guestAPI.getGuests()).filter((guest) =>
-      guest.name.toLowerCase().includes(searchname.toLowerCase())
+    const searchedGuests = (await guestAPI.getGuests()).filter((guest) =>
+      guest[field]?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    this.setState({ guests: searchedguests });
-  };
 
-  handleSearchCompany = async (searchname) => {
-    if (!searchname) {
-      this.setState({ guests: [] });
-      return;
-    }
-
-    const searchedguests = (await guestAPI.getGuests()).filter((guest) =>
-      guest.company.toLowerCase().includes(searchname.toLowerCase())
-    );
-    this.setState({ guests: searchedguests });
+    this.setState({ guests: searchedGuests, isLoading: false });
   };
 
   handleCheckIn = async (guest) => {
-    const shouldCheckIn = window.confirm(
+    const shouldCheckIn = this.confirmAction(
       `Are you sure to check in for ${guest.name} now?`
     );
-    if (!shouldCheckIn) {
-      return;
-    }
+    if (!shouldCheckIn) return;
 
-    guest.checkin = DateClass.getCurrentDatetimeISO();
-    const updatedguest = await guestAPI.updateGuest(guest);
+    const updatedGuest = {
+      ...guest,
+      checkin: DateClass.getCurrentDatetimeISO(),
+    };
 
-    if (updatedguest === "Error updating data") {
+    const response = await guestAPI.updateGuest(updatedGuest);
+    if (response === "Error updating data") {
       window.alert(`Checking in failed for ${guest.name}, please try again!`);
     } else {
-      const updatedguests = [...this.state.guests];
-      const index = updatedguests.indexOf(guest);
-      updatedguests[index] = updatedguest;
-      this.setState({ guests: updatedguests });
+      this.setState((prevState) => ({
+        guests: prevState.guests.map((g) =>
+          g.no === updatedGuest.no ? updatedGuest : g
+        ),
+      }));
     }
-    console.log(guest);
   };
 
   handleTag = async (guest) => {
-    const shouldTag = window.confirm(
+    const shouldTag = this.confirmAction(
       `Are you sure to give Tag for ${guest.name} now?`
     );
-    if (!shouldTag) {
-      return;
-    }
+    if (!shouldTag) return;
 
     const currentDatetime = DateClass.getCurrentDatetimeISO();
-    const tagtime = DateClass.formatTime(currentDatetime);
-    guest.tag = guest.tag ? "" : "Tag on " + tagtime;
-    const updatedguest = await guestAPI.updateGuest(guest);
+    const updatedGuest = {
+      ...guest,
+      tag: guest.tag ? "" : `Tag on ${DateClass.formatTime(currentDatetime)}`,
+    };
 
-    if (updatedguest === "Error updating data") {
-      window.alert(`Checking in failed for ${guest.name}, please try again!`);
+    const response = await guestAPI.updateGuest(updatedGuest);
+    if (response === "Error updating data") {
+      window.alert(`Tagging failed for ${guest.name}, please try again!`);
     } else {
-      const updatedguests = [...this.state.guests];
-      const index = updatedguests.indexOf(guest);
-      updatedguests[index] = updatedguest;
-      this.setState({ guests: updatedguests });
+      this.setState((prevState) => ({
+        guests: prevState.guests.map((g) =>
+          g.no === updatedGuest.no ? updatedGuest : g
+        ),
+      }));
     }
   };
 
   render() {
-    const { length: count } = this.state.guests;
+    const { guests, isLoading } = this.state;
 
     return (
       <React.Fragment>
-        <div style={{ display: "flex" }}>
-          <SearchForm onSearch={this.handleSearch} label="Name" />
-          <SearchForm onSearch={this.handleSearchCompany} label="Company" />
+        <div className="flex-container">
+          <SearchForm
+            onSearch={(term) => this.handleSearch(term, "name")}
+            label="Name"
+          />
+          <SearchForm
+            onSearch={(term) => this.handleSearch(term, "company")}
+            label="Company"
+          />
         </div>
-        {count === 0 ? (
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : guests.length === 0 ? (
           <p>No matching guests found.</p>
         ) : (
-          <p>Showing {count} matching guests.</p>
+          <p>Showing {guests.length} matching guests.</p>
         )}
         <GuestsTable
-          guests={this.state.guests}
+          guests={guests}
           handleCheckIn={this.handleCheckIn}
           handleTag={this.handleTag}
         />
@@ -102,5 +107,24 @@ class GuestCheckIn extends Component {
     );
   }
 }
+
+GuestsTable.propTypes = {
+  guests: PropTypes.arrayOf(
+    PropTypes.shape({
+      no: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      company: PropTypes.string,
+      checkin: PropTypes.string,
+      tag: PropTypes.string,
+    })
+  ).isRequired,
+  handleCheckIn: PropTypes.func.isRequired,
+  handleTag: PropTypes.func.isRequired,
+};
+
+SearchForm.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+};
 
 export default GuestCheckIn;
